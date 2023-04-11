@@ -1,0 +1,21 @@
+<br/>
+
+<textarea cols="80" rows="13">
+    when '1'
+      @response = service.get_all_projects
+    when '2'
+      @response = service.create_recording(voice_id, input_audio_path, 'Test POC', 'This is a test from Ruby POC')
+    when '3'
+      @response = service.all_recording(voice_id)
+    when '4'
+      @response = service.all_voices
+    end
+</textarea>
+</pre>
+<p>response:</p>
+<pre>
+<code>
+<%=  @response %>
+</code>
+</pre>
+
