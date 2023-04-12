@@ -39,4 +39,30 @@ class ResembleAiService
     response = Resemble::V2::Voice.all(@page, @page_size)
     response.to_json(indent: 2)
   end
+
+  def all_clips(project_uuid)
+    puts 'entrei'
+    response = Resemble::V2::Clip.all(project_uuid, @page, @page_size)
+    response.to_json(indent: 2)
+  end
+
+  def create_clip(voice_uuid, project_uuid)
+    callback_uri = 'https://example.com/callback/resemble-clip'
+    body = 'This is an async test'
+
+    response = Resemble::V2::Clip.create_async(
+      project_uuid,
+      voice_uuid,
+      callback_uri,
+      body,
+      title: nil,
+      sample_rate: nil,
+      output_format: nil,
+      precision: nil,
+      include_timestamps: nil,
+      is_public: nil,
+      is_archived: nil
+    )
+    response.to_json(indent: 2)
+  end
 end

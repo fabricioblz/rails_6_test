@@ -1,17 +1,12 @@
 <br/>
-
-<textarea cols="80" rows="13">
-    when '1'
-      @response = service.get_all_projects
-    when '2'
-      @response = service.create_recording(voice_id, input_audio_path, 'Test POC', 'This is a test from Ruby POC')
-    when '3'
-      @response = service.all_recording(voice_id)
-    when '4'
-      @response = service.all_voices
-    end
-</textarea>
-</pre>
+<ul>
+  <li><%= link_to 'Get all projects', pages_path(1) %></li>
+  <li><%= link_to 'Create recording', pages_path(2) %></li>
+  <li><%= link_to 'Get all recordings', pages_path(3) %></li>
+  <li><%= link_to 'Get all voices', pages_path(4) %></li>
+  <li><%= link_to 'Create Clip', pages_path(5) %></li>
+  <li><%= link_to 'All Clips', pages_path(6) %></li>
+</ul>
 <p>response:</p>
 <pre>
 <code>
