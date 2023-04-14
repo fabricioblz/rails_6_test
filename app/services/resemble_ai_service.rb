@@ -41,14 +41,15 @@ class ResembleAiService
   end
 
   def all_clips(project_uuid)
-    puts 'entrei'
     response = Resemble::V2::Clip.all(project_uuid, @page, @page_size)
     response.to_json(indent: 2)
   end
 
-  def create_clip(voice_uuid, project_uuid)
+  def create_clip(voice_uuid, project_uuid, _file_path)
     callback_uri = 'https://example.com/callback/resemble-clip'
-    body = 'This is an async test'
+    # body = "<speak><resemble:convert src=\"#{file_path}\"/></speak>"
+    # body = '<speak><resemble:convert src="https://resemble-data.s3.us-east-2.amazonaws.com/source-s2s.wav"/></speak>'
+    body = '<speak><resemble:convert src="https://drive.google.com/uc?export=download&id=1Dr1e4j8fSw6-HJRrRxJTIWDbXoCOTIRe"/></speak>'
 
     response = Resemble::V2::Clip.create_async(
       project_uuid,
@@ -63,6 +64,14 @@ class ResembleAiService
       is_public: nil,
       is_archived: nil
     )
-    response.to_json(indent: 2)
+  end
+
+  def full_test(voice_uuid, project_uuid, file_path)
+    response = create_clip(voice_uuid, project_uuid, file_path)
+    clip_uuid = response['item']['uuid']
+    puts clip_uuid
+    clip_response = Resemble::V2::Clip.get(project_uuid, clip_uuid)
+    puts clip_response
+    clip_response['item']['audio_src']
   end
 end

@@ -7,7 +7,7 @@ class PagesController < ApplicationController
     api_key = ENV['API_KEY']
     project_id = '9aab0f73'
     voice_id = '48d7ed16'
-    input_audio_path = 'app/assets/recordings/record.wav'
+    input_audio_path = 'app/assets/recordings/record2.wav'
     output_audio_path = 'app/assets/recordings/file.mp3'
 
     service = ResembleAiService.new(api_key, project_id, voice_id)
@@ -27,6 +27,8 @@ class PagesController < ApplicationController
       @response = service.create_clip(voice_id, project_id)
     when '6'
       @response = service.all_clips(project_id)
+    when '7'
+      @response = service.full_test(voice_id, project_id, input_audio_path)
     end
   end
 end
