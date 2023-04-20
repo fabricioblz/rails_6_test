@@ -6,7 +6,8 @@ class PagesController < ApplicationController
   def option
     api_key = ENV['API_KEY']
     project_id = '9aab0f73'
-    voice_id = '48d7ed16'
+    # voice_id = '48d7ed16'
+    voice_id = 'bed1044d'
     input_audio_path = 'app/assets/recordings/record2.wav'
     output_audio_path = 'app/assets/recordings/file.mp3'
 

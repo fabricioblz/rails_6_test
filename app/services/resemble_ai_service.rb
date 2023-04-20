@@ -1,12 +1,13 @@
 require 'resemble'
+require 'aws-sdk-s3'
 
 class ResembleAiService
   API_BASE_URL = 'https://api.resemble.ai/v2/projects'
 
-  def initialize(api_key, project_id, voice_id)
+  def initialize(api_key, project_id)
     @api_key = api_key
     @project_id = project_id
-    @voice_id = voice_id
+    @voice_id = '48d7ed16'
 
     Resemble.api_key = @api_key
     @page = 1
@@ -25,7 +26,6 @@ class ResembleAiService
   end
 
   def create_recording(voice_uuid, file_path, name, text)
-    puts 'entrei'
     is_active = true
     emotion = 'neutral'
 
@@ -37,7 +37,7 @@ class ResembleAiService
 
   def all_voices
     response = Resemble::V2::Voice.all(@page, @page_size)
-    response.to_json(indent: 2)
+    response['items']
   end
 
   def all_clips(project_uuid)
@@ -45,13 +45,13 @@ class ResembleAiService
     response.to_json(indent: 2)
   end
 
-  def create_clip(voice_uuid, project_uuid, _file_path)
-    callback_uri = 'https://example.com/callback/resemble-clip'
-    # body = "<speak><resemble:convert src=\"#{file_path}\"/></speak>"
-    # body = '<speak><resemble:convert src="https://resemble-data.s3.us-east-2.amazonaws.com/source-s2s.wav"/></speak>'
-    body = '<speak><resemble:convert src="https://drive.google.com/uc?export=download&id=1Dr1e4j8fSw6-HJRrRxJTIWDbXoCOTIRe"/></speak>'
+  def create_clip(voice_uuid, project_uuid, file_path)
+    body = "<speak><resemble:convert src='#{file_path}'
+/></speak>"
 
-    response = Resemble::V2::Clip.create_async(
+    callback_uri = 'https://example.com/callback/resemble-clip'
+
+    Resemble::V2::Clip.create_async(
       project_uuid,
       voice_uuid,
       callback_uri,
@@ -73,5 +73,37 @@ class ResembleAiService
     clip_response = Resemble::V2::Clip.get(project_uuid, clip_uuid)
     puts clip_response
     clip_response['item']['audio_src']
+  end
+
+  def transform_voice(voice_uuid, _audio_file)
+    # file_path = upload_to_s3(audio_file)
+    file_path = 'https://drive.google.com/uc?id=1llA9UhqBxlr7wmmQ8s2xcLhEFWsHudFa&export=download'
+    response = create_clip(voice_uuid, @project_id, file_path)
+    clip_uuid = response['item']['uuid']
+    get_clip(clip_uuid)
+  end
+
+  def get_clip(clip_uuid)
+    clip = Resemble::V2::Clip.get(@project_id, clip_uuid)
+    clip['item']['audio_src']
+  end
+
+  def upload_to_s3(file)
+    s3 = Aws::S3::Resource.new(
+      region: 'us-east-2',
+      access_key_id: ENV['A_KEY'],
+      secret_access_key: ENV['A_S']
+    )
+
+    # Generate a unique filename for the file
+    filename = "#{SecureRandom.uuid}#{File.extname(file.original_filename)}"
+
+    # Upload the file to S3 bucket
+    obj = s3.bucket('resemble-poc').object(filename)
+    obj.upload_file(file.tempfile)
+
+    # Get the URL of the uploaded file
+    puts obj.public_url.to_s
+    obj.public_url.to_s
   end
 end
